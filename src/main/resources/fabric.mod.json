@@ -36,7 +36,7 @@
   "custom": {
     "modmenu": {
       "links": {
-        "modmenu.discord": "https://discord.gg/jEGF5fb"
+        "Source": "https://github.com/CTRL-Neo-Studios/fair-utils"
       },
       "badges": [ "client" ]
     }
