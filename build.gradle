@@ -14,7 +14,7 @@ loom {
     splitEnvironmentSourceSets()
 
     mods {
-        "playerutils" {
+        "fairutils" {
             sourceSet sourceSets.main
             sourceSet sourceSets.client
         }
