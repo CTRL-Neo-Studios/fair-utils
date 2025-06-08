@@ -1,0 +1,25 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21.5/owo-ui.xsd">
+    <components>
+        <flow-layout direction="vertical">
+            <children>
+                <label>
+                    <text>{{task-title}}</text>
+                </label>
+                <label>
+                    <text>{{task-desc}}</text>
+                </label>
+                <
+            </children>
+            <padding>
+                <all>5</all>
+            </padding>
+            <cursor-style>pointer</cursor-style>
+        </flow-layout>
+    </components>
+    <templates>
+        <template name="task-item">
+
+        </template>
+    </templates>
+</owo-ui>

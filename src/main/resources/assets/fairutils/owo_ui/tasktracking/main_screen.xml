@@ -1,0 +1,31 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21.5/owo-ui.xsd">
+    <components>
+        <flow-layout direction="vertical">
+            <children>
+                <scroll direction="vertical">
+                    <flow-layout direction="vertical" id="">
+                        <children>
+
+                        </children>
+                        <sizing>
+                            <vertical method="content">100</vertical>
+                            <horizontal method="fill">100</horizontal>
+                        </sizing>
+                    </flow-layout>
+                    <sizing>
+                        <vertical method="fill">100</vertical>
+                        <horizontal method="fill">100</horizontal>
+                    </sizing>
+                    <scrollbar-color>#ffffff</scrollbar-color>
+                    <scrollbar-thiccness>10</scrollbar-thiccness>
+                </scroll>
+            </children>
+            <padding>
+                <all>5</all>
+            </padding>
+            <vertical-alignment>top</vertical-alignment>
+            <horizontal-alignment>left</horizontal-alignment>
+        </flow-layout>
+    </components>
+</owo-ui>

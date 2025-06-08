@@ -1,25 +1,25 @@
 package dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.screens;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.text.Text;
+import dev.ctrlneo.fairutils.client.lib.ui.screens.BaseScreen;
+import dev.ctrlneo.fairutils.client.utility.Reference;
+import io.wispforest.owo.ui.container.FlowLayout;
 
-public class TaskTrackingScreen extends Screen {
+import java.util.Map;
 
-    private MinecraftClient client;
+public class TaskTrackingScreen extends BaseScreen {
 
     protected TaskTrackingScreen() {
-        super(Text.literal("Task Tracker"));
-        client = MinecraftClient.getInstance();
+        super(Reference.of("tasktracking", "main_screen"));
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-        super.render(context, mouseX, mouseY, deltaTicks);
+    public void injectDynamicComponents() {
+        super.injectDynamicComponents();
+        getRootComponent().child(this.model.expandTemplate(FlowLayout.class, "", Map.of()).childById());
+    }
 
-//        context.fill(RenderLayer.getGuiOverlay(), 0, 0, client.getWindow().getWidth(),);
-        context.getMatrices().push();
+    @Override
+    public void injectStaticComponents(FlowLayout flowLayout) {
+        super.injectStaticComponents(flowLayout);
     }
 }

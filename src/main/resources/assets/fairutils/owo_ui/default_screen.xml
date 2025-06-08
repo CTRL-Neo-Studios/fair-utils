@@ -1,0 +1,16 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.21.5/owo-ui.xsd">
+    <components>
+        <flow-layout direction="vertical">
+            <children>
+                <label>
+                    <text>Default Screen.</text>
+                    <vertical-text-alignment>center</vertical-text-alignment>
+                    <horizontal-text-alignment>center</horizontal-text-alignment>
+                </label>
+            </children>
+            <vertical-alignment>center</vertical-alignment>
+            <horizontal-alignment>center</horizontal-alignment>
+        </flow-layout>
+    </components>
+</owo-ui>
