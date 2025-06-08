@@ -1,0 +1,8 @@
+# wrapper gui lib for screens
+
+- needs basic stuff like UI components and stuff, and container styling like Padding, width fit content, height fit content, or width fill, height fill, or width/height set a proportion to the parent container's width/height.
+- More or so inspired by Vue/HTML + basic TailwindCSS stylings, like `gap`, `grid`, `padding`, `margin`, `width`, `height`, `display`, `flex`, `absolute`, `relative`, `top-0, bottom-0, right-0, left-0`, `transition, duration`, `animate`, `flex-grow`, `flex`, `flex-wrap`, `flex-col`, `justify-center/end/start`, `align-start/middle/end`, `items-center/end/start`, etc.
+- Vue Reactivity-like Vue Ref variables for variable reactivity. But I suppose that's also probably reactive out of the box since variables are fetched per render call.
+- For the animations implementation part, it's much smoother to just manipulate the `drawContext.getMatrices()`'s `push()` or `pop()` and the functions within. just modify the render matrice for a smoother effect.
+- For components, need stuff like input boxes, buttons, dropdowns, tooltips, item renders, labels, scroll panels, grids and stuff. and also some text alignment and other stuff, and flex stuff
+- The general styling is determined to be an absolutist-minimalist contrast style, e.g. Button can be a white-button bg with black label text, and when hover, it turns to an white outline, black background, white label text.

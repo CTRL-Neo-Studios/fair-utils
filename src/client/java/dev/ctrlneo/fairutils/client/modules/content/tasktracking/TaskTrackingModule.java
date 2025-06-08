@@ -7,6 +7,7 @@ import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.Item
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.Items;
 
@@ -21,53 +22,55 @@ public class TaskTrackingModule extends UtilityModule {
         super.initialize();
         mc = MinecraftClient.getInstance();
 
+        // Register tick event for updating tasks
         ClientTickEvents.END_CLIENT_TICK.register(this::onClientTick);
 
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> {
-            layeredDrawer.addLayer(renderer);
+        // Register renderer for HUD overlay
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawerWrapper -> {
+            layeredDrawerWrapper.addLayer(renderer);
         });
 
+        // Enable module based on config
         if (FairUtilsConfig.get().taskTrackingEnabled) {
             enableModule();
         }
-
-//        if (taskManager.getAllTasks().isEmpty()) {
-//            createDemoTask();
-//        }
     }
 
     /**
-     * Creates a demo task for testing
+     * Called each tick to update the tasks
      */
-    private void createDemoTask() {
-        Task demoTask = new Task("Mining Expedition", "Collect resources from a mining trip");
-
-        // Add some objectives
-        demoTask.addObjective(new ItemCollectionObjective("Collect Iron", Items.RAW_IRON, 10));
-        demoTask.addObjective(new ItemCollectionObjective("Collect Gold", Items.RAW_GOLD, 5));
-        demoTask.addObjective(new ItemCollectionObjective("Collect Diamond", Items.DIAMOND, 3));
-
-        taskManager.addTask(demoTask);
-    }
-
     private void onClientTick(MinecraftClient client) {
         if (!isEnabled() || client.player == null)
             return;
 
-        // Update all active tasks
         taskManager.tick();
+    }
+
+    /**
+     * Create a demo task for testing
+     */
+    private void createDemoTask() {
+        // Create a simple collection task
+        Task demoTask = new Task("Collect Resources", "Gather materials for crafting");
+
+        // Add objectives
+        demoTask.addObjective(new ItemCollectionObjective("Collect Iron", Items.RAW_IRON, 16));
+        demoTask.addObjective(new ItemCollectionObjective("Collect Coal", Items.COAL, 32));
+
+        // Add the task to the manager
+        taskManager.addTask(demoTask);
     }
 
     @Override
     public void onEnabled() {
         super.onEnabled();
-        // Any specific actions when enabled
+        // nothing to do
     }
 
     @Override
     public void onDisabled() {
         super.onDisabled();
-        // Any specific actions when disabled
+        // nothing to do
     }
 
     @Override
@@ -80,6 +83,9 @@ public class TaskTrackingModule extends UtilityModule {
         return "task_tracking";
     }
 
+    /**
+     * Get the task manager instance
+     */
     public TaskManager getTaskManager() {
         return taskManager;
     }

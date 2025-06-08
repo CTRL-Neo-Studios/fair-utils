@@ -4,12 +4,14 @@ import dev.ctrlneo.fairutils.client.config.FairUtilsConfig;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.Task;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskObjective;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskOverlayPosition;
 import dev.ctrlneo.fairutils.client.utility.Reference;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -26,6 +28,8 @@ public class TaskOverlayRenderLayer implements IdentifiedLayer {
     private static final int OBJECTIVE_COLOR = 0xAAAAAA; // Gray
     private static final int COMPLETED_COLOR = 0x55FF55; // Bright green
 
+    private MinecraftClient client;
+
     public TaskOverlayRenderLayer(TaskManager taskManager) {
         this.taskManager = taskManager;
     }
@@ -37,7 +41,8 @@ public class TaskOverlayRenderLayer implements IdentifiedLayer {
 
     @Override
     public void render(DrawContext context, RenderTickCounter tickCounter) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        if(client == null) client = MinecraftClient.getInstance();
+
         if (client.player == null || client.options.hudHidden)
             return;
 
@@ -49,30 +54,31 @@ public class TaskOverlayRenderLayer implements IdentifiedLayer {
         if (visibleTasks.isEmpty())
             return;
 
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
+        int width = client.getWindow().getScaledWidth();
+        int height = client.getWindow().getScaledHeight();
         TextRenderer textRenderer = client.textRenderer;
 
-        int x = screenWidth - 210; // Right side of screen with padding
+        int x = width - 210; // Right side of screen with padding
         int y = 40; // Top of screen with padding
 
         // Determine display position from config
-        switch (FairUtilsConfig.get().taskTrackingPosition) {
+        TaskOverlayPosition position = FairUtilsConfig.get().taskTrackingPosition;
+        switch (position) {
             case TOP_LEFT:
                 x = 10;
                 y = 40;
                 break;
             case TOP_RIGHT:
-                x = screenWidth - 210;
+                x = width - 210;
                 y = 40;
                 break;
             case BOTTOM_LEFT:
                 x = 10;
-                y = screenHeight - 150;
+                y = height - 150;
                 break;
             case BOTTOM_RIGHT:
-                x = screenWidth - 210;
-                y = screenHeight - 150;
+                x = width - 210;
+                y = height - 150;
                 break;
         }
 
@@ -81,7 +87,6 @@ public class TaskOverlayRenderLayer implements IdentifiedLayer {
 
         // Draw header
         String headerText = "Tasks";
-        int headerWidth = textRenderer.getWidth(headerText);
         context.drawText(textRenderer, headerText, x + 5, y, TITLE_COLOR, true);
 
         y += 15;

@@ -1,5 +1,6 @@
 package dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives;
 
+import com.google.gson.JsonObject;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskObjective;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
@@ -85,6 +86,7 @@ public class AreaClearingObjective extends TaskObjective {
 
         blocksRemaining = totalBlocksToMine;
         initialized = true;
+        invalidateProgressCache();
     }
 
     @Override
@@ -128,7 +130,11 @@ public class AreaClearingObjective extends TaskObjective {
             }
         }
 
-        blocksRemaining = currentBlocksRemaining;
+        // Only invalidate progress cache if block count changed
+        if (blocksRemaining != currentBlocksRemaining) {
+            blocksRemaining = currentBlocksRemaining;
+            invalidateProgressCache();
+        }
 
         if (blocksRemaining == 0) {
             setCompleted(true);
@@ -137,14 +143,33 @@ public class AreaClearingObjective extends TaskObjective {
 
     @Override
     public float getProgressPercentage() {
+        if (isCompleted())
+            return 100.0f;
         if (totalBlocksToMine == 0)
             return 0.0f;
-        return ((float) (totalBlocksToMine - blocksRemaining) / totalBlocksToMine) * 100.0f;
+
+        float progress = ((float) (totalBlocksToMine - blocksRemaining) / totalBlocksToMine) * 100.0f;
+        return getCachedOrCalculateProgress(progress);
     }
 
     @Override
     public Text getProgressText() {
         return Text.literal((totalBlocksToMine - blocksRemaining) + "/" + totalBlocksToMine);
+    }
+
+    @Override
+    public void addPropertiesToJson(JsonObject json) {
+        json.addProperty("x1", startPos.getX());
+        json.addProperty("y1", startPos.getY());
+        json.addProperty("z1", startPos.getZ());
+        json.addProperty("x2", endPos.getX());
+        json.addProperty("y2", endPos.getY());
+        json.addProperty("z2", endPos.getZ());
+        json.addProperty("totalBlocksToMine", totalBlocksToMine);
+        json.addProperty("blocksRemaining", blocksRemaining);
+        json.addProperty("initialized", initialized);
+        json.addProperty("requireSpecificBlocks", requireSpecificBlocks);
+        // We don't save targetBlocks as they are difficult to serialize
     }
 
     public BlockPos getStartPos() {
@@ -153,6 +178,32 @@ public class AreaClearingObjective extends TaskObjective {
 
     public BlockPos getEndPos() {
         return endPos;
+    }
+
+    public void setTotalBlocksToMine(int totalBlocksToMine) {
+        this.totalBlocksToMine = totalBlocksToMine;
+        invalidateProgressCache();
+    }
+
+    public int getTotalBlocksToMine() {
+        return totalBlocksToMine;
+    }
+
+    public void setBlocksRemaining(int blocksRemaining) {
+        this.blocksRemaining = blocksRemaining;
+        invalidateProgressCache();
+    }
+
+    public int getBlocksRemaining() {
+        return blocksRemaining;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
     /**
