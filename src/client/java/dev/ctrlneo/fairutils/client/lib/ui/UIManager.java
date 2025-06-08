@@ -71,6 +71,7 @@ public class UIManager {
 
         @Override
         public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+            super.render(context, mouseX, mouseY, delta);
             // Draw background
             renderBackground(context, mouseX, mouseY, delta);
 
@@ -90,7 +91,6 @@ public class UIManager {
              * Tooltip.drawTooltipIfHovered(context, component, tooltip, mouseX, mouseY);
              */
 
-            super.render(context, mouseX, mouseY, delta);
         }
 
         @Override

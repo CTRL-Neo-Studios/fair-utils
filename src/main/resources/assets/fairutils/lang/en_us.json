@@ -1,5 +1,6 @@
 {
   "fairutils": "Fair Utils",
 
-  "fairutils.modules.damage_indicator.name": "Damage Indicator"
+  "fairutils.modules.damage_indicator.name": "Damage Indicator",
+  "fairutils.modules.task_tracker.name": "Task Tracker"
 }

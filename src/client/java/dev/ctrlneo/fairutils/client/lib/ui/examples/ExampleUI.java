@@ -30,34 +30,34 @@ public class ExampleUI {
         Ref<String> selectedOption = Ref.of("Option 1");
 
         // Create the root container
-        Container root = new Container()
-                .setStyle(new Style()
-                        .padding(20)
-                        .flexColumn()
-                        .gap(10));
+        Container root = new Container();
+        root.setStyle(new Style()
+                .padding(20)
+                .flexColumn()
+                .gap(10));
 
         // Add a title label
-        Label titleLabel = new Label("Fair Utils Example UI")
-                .setStyle(new Style()
-                        .flexGrow(0)
-                        .alignItems(Style.AlignItems.CENTER))
-                .setColor(0xFFFFFF00)
+        Label titleLabel = new Label("Fair Utils Example UI");
+        titleLabel.setStyle(new Style()
+                .flexGrow(0)
+                .alignItems(Style.AlignItems.CENTER));
+        titleLabel.setColor(0xFFFFFF00)
                 .setShadow(true);
 
         root.add(titleLabel);
 
         // Create a form container
-        Container form = new Container()
-                .setStyle(new Style()
-                        .padding(10)
-                        .gap(5)
-                        .flexColumn());
+        Container form = new Container();
+        form.setStyle(new Style()
+                .padding(10)
+                .gap(5)
+                .flexColumn());
 
         // Add a name field with label
-        Container nameField = new Container()
-                .setStyle(new Style()
-                        .flexGrow(0)
-                        .gap(5));
+        Container nameField = new Container();
+        nameField.setStyle(new Style()
+                .flexGrow(0)
+                .gap(5));
 
         Label nameLabel = new Label("Name:")
                 .setColor(0xFFFFFFFF);
@@ -73,13 +73,13 @@ public class ExampleUI {
         form.add(nameField);
 
         // Add a dropdown
-        Container dropdownField = new Container()
-                .setStyle(new Style()
-                        .flexGrow(0)
-                        .gap(5));
+        Container dropdownField = new Container();
+        dropdownField.setStyle(new Style()
+                .flexGrow(0)
+                .gap(5));
 
-        Label optionsLabel = new Label("Options:")
-                .setColor(0xFFFFFFFF);
+        Label optionsLabel = new Label("Options:");
+        optionsLabel.setColor(0xFFFFFFFF);
 
         dropdownField.add(optionsLabel);
 
@@ -97,11 +97,11 @@ public class ExampleUI {
         root.add(form);
 
         // Create a scrollable content area with items
-        Container itemsContainer = new Container()
-                .setStyle(new Style()
-                        .padding(5)
-                        .gap(10)
-                        .flexWrap());
+        Container itemsContainer = new Container();
+        itemsContainer.setStyle(new Style()
+                .padding(5)
+                .gap(10)
+                .flexWrap());
 
         // Add some example items
         for (int i = 0; i < 20; i++) {
@@ -134,13 +134,13 @@ public class ExampleUI {
                         .addLine("Click to select");
 
                 // Create a container for the item with spacing
-                Container itemContainer = new Container()
-                        .setStyle(new Style()
-                                .padding(5)
-                                .width(40)
-                                .height(40)
-                                .alignItems(Style.AlignItems.CENTER)
-                                .justifyContent(Style.JustifyContent.CENTER));
+                Container itemContainer = new Container();
+                itemContainer.setStyle(new Style()
+                        .padding(5)
+                        .width(40)
+                        .height(40)
+                        .alignItems(Style.AlignItems.CENTER)
+                        .justifyContent(Style.JustifyContent.CENTER));
 
                 itemContainer.add(itemRenderer);
 
@@ -150,37 +150,37 @@ public class ExampleUI {
         }
 
         // Create a scroll panel for the items
-        ScrollPanel scrollPanel = new ScrollPanel()
-                .setContent(itemsContainer)
-                .setSize(0, 200)
-                .setStyle(new Style()
-                        .widthFill()
-                        .flexGrow(1));
+        ScrollPanel scrollPanel = new ScrollPanel();
+        scrollPanel.setContent(itemsContainer);
+        scrollPanel.setSize(0, 200);
+        scrollPanel.setStyle(new Style()
+                .widthFill()
+                .flexGrow(1));
 
         // Add the scroll panel to the root container
         root.add(scrollPanel);
 
         // Create buttons container
-        Container buttonsContainer = new Container()
-                .setStyle(new Style()
-                        .flexGrow(0)
-                        .gap(10)
-                        .justifyContent(Style.JustifyContent.CENTER));
+        Container buttonsContainer = new Container();
+        buttonsContainer.setStyle(new Style()
+                .flexGrow(0)
+                .gap(10)
+                .justifyContent(Style.JustifyContent.CENTER));
 
         // Add a save button
-        Button saveButton = new Button("Save")
-                .setSize(100, 20)
-                .onClick(button -> {
-                    MinecraftClient.getInstance().player.sendMessage(
-                            Text.literal("Saved! Name: " + nameValue.value() + ", Option: " + selectedOption.value()),
-                            false);
-                    MinecraftClient.getInstance().setScreen(null);
-                });
+        Button saveButton = new Button("Save");
+        saveButton.setSize(100, 20);
+        saveButton.onClick(button -> {
+            MinecraftClient.getInstance().player.sendMessage(
+                    Text.literal("Saved! Name: " + nameValue.value() + ", Option: " + selectedOption.value()),
+                    false);
+            MinecraftClient.getInstance().setScreen(null);
+        });
 
         // Add a cancel button
-        Button cancelButton = new Button("Cancel")
-                .setSize(100, 20)
-                .onClick(button -> MinecraftClient.getInstance().setScreen(null));
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setSize(100, 20);
+        cancelButton.onClick(button -> MinecraftClient.getInstance().setScreen(null));
 
         // Add buttons to the container
         buttonsContainer.add(saveButton);

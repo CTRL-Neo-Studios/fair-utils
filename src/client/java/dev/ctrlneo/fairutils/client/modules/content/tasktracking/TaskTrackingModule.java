@@ -1,6 +1,7 @@
 package dev.ctrlneo.fairutils.client.modules.content.tasktracking;
 
 import dev.ctrlneo.fairutils.client.config.FairUtilsConfig;
+import dev.ctrlneo.fairutils.client.lib.ui.examples.SimpleExampleUI;
 import dev.ctrlneo.fairutils.client.modules.UtilityModule;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.TaskOverlayRenderLayer;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.ItemCollectionObjective;
@@ -9,12 +10,18 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.KeyCodes;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.Items;
 
 public class TaskTrackingModule extends UtilityModule {
     public static final String MODULE_CATEGORY = "Task Tracking";
     private final TaskManager taskManager = new TaskManager();
     private final TaskOverlayRenderLayer renderer = new TaskOverlayRenderLayer(taskManager);
+
+    private final KeyBinding TOGGLE_TASK_TRACKING_SCREEN = new KeyBinding("fairutils.modules.task_tracker.name", InputUtil.GLFW_KEY_0, MODULE_CATEGORY);
+
     private MinecraftClient mc;
 
     @Override
@@ -42,6 +49,10 @@ public class TaskTrackingModule extends UtilityModule {
     private void onClientTick(MinecraftClient client) {
         if (!isEnabled() || client.player == null)
             return;
+
+        if (TOGGLE_TASK_TRACKING_SCREEN.wasPressed()) {
+            SimpleExampleUI.open();
+        }
 
         taskManager.tick();
     }
@@ -80,7 +91,7 @@ public class TaskTrackingModule extends UtilityModule {
 
     @Override
     public String getModuleId() {
-        return "task_tracking";
+        return "task_tracker";
     }
 
     /**

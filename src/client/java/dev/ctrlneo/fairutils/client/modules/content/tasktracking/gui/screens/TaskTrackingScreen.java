@@ -19,7 +19,7 @@ public class TaskTrackingScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         super.render(context, mouseX, mouseY, deltaTicks);
 
-        context.fill(RenderLayer.getGuiOverlay(), 0, 0, client.getWindow().getWidth(),);
+//        context.fill(RenderLayer.getGuiOverlay(), 0, 0, client.getWindow().getWidth(),);
         context.getMatrices().push();
     }
 }
