@@ -1,20 +1,25 @@
 package dev.ctrlneo.fairutils.client.modules.content.tasktracking;
 
 import dev.ctrlneo.fairutils.client.config.FairUtilsConfig;
+import dev.ctrlneo.fairutils.client.lib.ui.UIManager;
 import dev.ctrlneo.fairutils.client.modules.UtilityModule;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.TaskOverlayRenderLayer;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.screens.TaskTrackingScreen;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.ItemCollectionObjective;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.Items;
 
 public class TaskTrackingModule extends UtilityModule {
     public static final String MODULE_CATEGORY = "Task Tracking";
-    private final TaskManager taskManager = new TaskManager();
-    private final TaskOverlayRenderLayer renderer = new TaskOverlayRenderLayer(taskManager);
+    public static final TaskManager TASK_MANAGER = new TaskManager();
+    public static final KeyBinding OPEN_TASK_TRACKING_GUI = new KeyBinding("fairutils", InputUtil.GLFW_KEY_0, MODULE_CATEGORY);
+    private final TaskOverlayRenderLayer renderer = new TaskOverlayRenderLayer(TASK_MANAGER);
     private MinecraftClient mc;
 
     @Override
@@ -43,7 +48,11 @@ public class TaskTrackingModule extends UtilityModule {
         if (!isEnabled() || client.player == null)
             return;
 
-        taskManager.tick();
+        if (OPEN_TASK_TRACKING_GUI.wasPressed()) {
+            UIManager.to(new TaskTrackingScreen());
+        }
+
+        TASK_MANAGER.tick();
     }
 
     /**
@@ -58,7 +67,7 @@ public class TaskTrackingModule extends UtilityModule {
         demoTask.addObjective(new ItemCollectionObjective("Collect Coal", Items.COAL, 32));
 
         // Add the task to the manager
-        taskManager.addTask(demoTask);
+        TASK_MANAGER.addTask(demoTask);
     }
 
     @Override
@@ -87,6 +96,6 @@ public class TaskTrackingModule extends UtilityModule {
      * Get the task manager instance
      */
     public TaskManager getTaskManager() {
-        return taskManager;
+        return TASK_MANAGER;
     }
 }

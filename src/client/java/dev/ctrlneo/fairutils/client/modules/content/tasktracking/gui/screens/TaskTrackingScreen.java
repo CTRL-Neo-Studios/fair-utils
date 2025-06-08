@@ -1,6 +1,9 @@
 package dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.screens;
 
 import dev.ctrlneo.fairutils.client.lib.ui.screens.BaseScreen;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.Task;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskTrackingModule;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
 import dev.ctrlneo.fairutils.client.utility.Reference;
 import io.wispforest.owo.ui.container.FlowLayout;
 
@@ -8,14 +11,28 @@ import java.util.Map;
 
 public class TaskTrackingScreen extends BaseScreen {
 
-    protected TaskTrackingScreen() {
+    public TaskTrackingScreen() {
         super(Reference.of("tasktracking", "main_screen"));
     }
 
     @Override
     public void injectDynamicComponents() {
         super.injectDynamicComponents();
-        getRootComponent().child(this.model.expandTemplate(FlowLayout.class, "", Map.of()).childById());
+
+        FlowLayout taskItemHolder = getRootComponent().childById(FlowLayout.class, "task-item-holder");
+        if (taskItemHolder != null) {
+            taskItemHolder.clearChildren();
+            taskItemHolder.<FlowLayout>configure(component -> {
+                for(Task task : TaskTrackingModule.TASK_MANAGER.getAllTasks()) {
+                    component.child(
+                            template("task-item", FlowLayout.class)
+                                    .with("task-title", task.getTitle())
+                                    .with("task-desc", task.getDescription())
+                                    .expand(Reference.of("tasktracking", "components", "task_item"))
+                    );
+                }
+            });
+        }
     }
 
     @Override

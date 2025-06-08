@@ -3,8 +3,11 @@
     <components>
         <flow-layout direction="vertical">
             <children>
+                <label>
+                    <text>Tracking Tasks</text>
+                </label>
                 <scroll direction="vertical">
-                    <flow-layout direction="vertical" id="">
+                    <flow-layout direction="vertical" id="task-item-holder">
                         <children>
 
                         </children>
@@ -26,6 +29,10 @@
             </padding>
             <vertical-alignment>top</vertical-alignment>
             <horizontal-alignment>left</horizontal-alignment>
+            <sizing>
+                <vertical method="fill">100</vertical>
+                <horizontal method="fill">100</horizontal>
+            </sizing>
         </flow-layout>
     </components>
 </owo-ui>

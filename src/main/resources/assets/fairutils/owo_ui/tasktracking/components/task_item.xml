@@ -9,7 +9,6 @@
                 <label>
                     <text>{{task-desc}}</text>
                 </label>
-                <
             </children>
             <padding>
                 <all>5</all>
@@ -19,7 +18,20 @@
     </components>
     <templates>
         <template name="task-item">
-
+            <flow-layout direction="vertical">
+                <children>
+                    <label>
+                        <text>{{task-title}}</text>
+                    </label>
+                    <label>
+                        <text>{{task-desc}}</text>
+                    </label>
+                </children>
+                <padding>
+                    <all>5</all>
+                </padding>
+                <cursor-style>pointer</cursor-style>
+            </flow-layout>
         </template>
     </templates>
 </owo-ui>
