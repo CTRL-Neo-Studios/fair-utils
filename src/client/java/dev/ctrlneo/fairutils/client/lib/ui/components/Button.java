@@ -75,7 +75,8 @@ public class Button extends AbstractComponent {
     @Override
     protected void renderContent(DrawContext context, int x, int y, int width, int height, int mouseX, int mouseY,
             float delta) {
-        this.hovered = mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height;
+        // Check if mouse is over using the absolute coordinates
+        this.hovered = isMouseOverContent(x, y, mouseX, mouseY);
 
         // Render button background
         int backgroundColor, textColor;
@@ -112,7 +113,11 @@ public class Button extends AbstractComponent {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button) && button == 0) {
+        if (!enabled)
+            return false;
+
+        // Use correct coordinate checking
+        if (isMouseOver(mouseX, mouseY) && button == 0) {
             playClickSound();
             pressed = true;
             return true;
@@ -125,14 +130,13 @@ public class Button extends AbstractComponent {
         if (pressed && button == 0) {
             pressed = false;
 
-            // Check if still hovered
-            if (mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height) {
+            // Use correct coordinate checking
+            if (isMouseOver(mouseX, mouseY)) {
                 if (onClick != null) {
                     onClick.accept(this);
                 }
+                return true;
             }
-
-            return true;
         }
 
         return false;
@@ -144,5 +148,11 @@ public class Button extends AbstractComponent {
     private void playClickSound() {
         MinecraftClient.getInstance().getSoundManager().play(
                 PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    }
+
+    public boolean isMouseOverContent(int contentX, int contentY, double mouseX, double mouseY) {
+        return visible && enabled &&
+                mouseX >= contentX && mouseX < contentX + width &&
+                mouseY >= contentY && mouseY < contentY + height;
     }
 }

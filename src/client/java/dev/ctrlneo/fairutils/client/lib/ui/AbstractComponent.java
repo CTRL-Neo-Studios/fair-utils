@@ -11,11 +11,17 @@ public abstract class AbstractComponent implements Component {
     protected int height;
     protected boolean visible = true;
     protected boolean enabled = true;
+    protected int absoluteX; // Track absolute position for mouse detection
+    protected int absoluteY; // Track absolute position for mouse detection
 
     @Override
     public void render(DrawContext context, int x, int y, int mouseX, int mouseY, float delta) {
         if (!visible)
             return;
+
+        // Store absolute coordinates for mouse detection
+        this.absoluteX = x;
+        this.absoluteY = y;
 
         // Apply styles
         int paddingLeft = style.getInt("paddingLeft", style.getInt("padding", 0));
@@ -157,13 +163,34 @@ public abstract class AbstractComponent implements Component {
     }
 
     /**
-     * Check if the mouse is over the component
+     * Get the absolute X position of the component
      * 
-     * @param mouseX The mouse x position
-     * @param mouseY The mouse y position
+     * @return The absolute X position
+     */
+    public int getAbsoluteX() {
+        return absoluteX;
+    }
+
+    /**
+     * Get the absolute Y position of the component
+     * 
+     * @return The absolute Y position
+     */
+    public int getAbsoluteY() {
+        return absoluteY;
+    }
+
+    /**
+     * Check if the mouse is over the component using absolute coordinates
+     * 
+     * @param mouseX The absolute mouse x position
+     * @param mouseY The absolute mouse y position
      * @return True if the mouse is over the component
      */
+    @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
-        return mouseX >= 0 && mouseX < width && mouseY >= 0 && mouseY < height;
+        return visible && enabled &&
+                mouseX >= absoluteX && mouseX < absoluteX + width &&
+                mouseY >= absoluteY && mouseY < absoluteY + height;
     }
 }

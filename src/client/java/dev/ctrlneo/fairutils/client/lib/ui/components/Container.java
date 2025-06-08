@@ -55,11 +55,32 @@ public class Container extends AbstractComponent {
         return this;
     }
 
+    /**
+     * Class to store child positions for input handling
+     */
+    private class ChildPosition {
+        Component component;
+        int x;
+        int y;
+
+        ChildPosition(Component component, int x, int y) {
+            this.component = component;
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    // Store the positions of all children from the last render
+    private final List<ChildPosition> childPositions = new ArrayList<>();
+
     @Override
     protected void renderContent(DrawContext context, int x, int y, int width, int height, int mouseX, int mouseY,
             float delta) {
         this.contentWidth = width;
         this.contentHeight = height;
+
+        // Clear previous child positions
+        childPositions.clear();
 
         boolean isFlexColumn = style.getBoolean("flexColumn", false);
         boolean flexWrap = style.getBoolean("flexWrap", false);
@@ -130,7 +151,6 @@ public class Container extends AbstractComponent {
 
         int currentRow = 0;
         int rowHeight = 0;
-        int rowStartPos = currentPos;
 
         for (int i = 0; i < children.size(); i++) {
             Component child = children.get(i);
@@ -155,7 +175,6 @@ public class Container extends AbstractComponent {
                 currentPos = 0;
                 currentRow += rowHeight + gap;
                 rowHeight = 0;
-                rowStartPos = 0;
             }
 
             // Calculate cross axis position (based on align items)
@@ -183,13 +202,21 @@ public class Container extends AbstractComponent {
                 }
             }
 
-            // Render child
+            // Calculate child position
             int childX = isFlexColumn ? x + crossPos : x + currentPos;
             int childY = isFlexColumn ? y + currentPos : y + currentRow + crossPos;
 
-            child.render(context, childX, childY, mouseX - childX, mouseY - childY, delta);
+            // Store position for later input handling
+            childPositions.add(new ChildPosition(child, childX, childY));
 
-            // Update position
+            // Convert mouse coordinates to be relative to the child
+            int childMouseX = mouseX - (childX - x);
+            int childMouseY = mouseY - (childY - y);
+
+            // Render child
+            child.render(context, childX, childY, childMouseX, childMouseY, delta);
+
+            // Update position for next child
             if (isFlexColumn) {
                 currentPos += childHeight + gap;
                 rowHeight = Math.max(rowHeight, childWidth);
@@ -200,37 +227,67 @@ public class Container extends AbstractComponent {
         }
     }
 
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (!super.mouseClicked(mouseX, mouseY, button)) {
-            return false;
-        }
+    /**
+     * Find the child component at the given coordinates
+     * 
+     * @param mouseX The mouse x position
+     * @param mouseY The mouse y position
+     * @return The child component, or null if none found
+     */
+    private ChildPosition findChildAt(double mouseX, double mouseY) {
+        // Iterate in reverse order to check top-most components first
+        for (int i = childPositions.size() - 1; i >= 0; i--) {
+            ChildPosition childPos = childPositions.get(i);
+            Component child = childPos.component;
 
-        // Pass event to children in reverse order (top to bottom)
-        for (int i = children.size() - 1; i >= 0; i--) {
-            Component child = children.get(i);
-            // Translate coordinates
-            double childX = mouseX;
-            double childY = mouseY;
+            // Calculate mouse position relative to child
+            double childMouseX = mouseX - childPos.x;
+            double childMouseY = mouseY - childPos.y;
 
-            // Only pass event if within bounds
-            if (childX >= 0 && childX < child.getWidth() && childY >= 0 && childY < child.getHeight()) {
-                if (child.mouseClicked(childX, childY, button)) {
-                    return true;
-                }
+            // Check if mouse is over child
+            if (childMouseX >= 0 && childMouseX < child.getWidth() &&
+                    childMouseY >= 0 && childMouseY < child.getHeight()) {
+                return childPos;
             }
         }
 
-        return false;
+        return null;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (!isMouseOver(mouseX, mouseY) || !enabled || !visible) {
+            return false;
+        }
+
+        // Find child at mouse position
+        ChildPosition childPos = findChildAt(mouseX, mouseY);
+        if (childPos != null) {
+            // Calculate mouse position relative to child
+            double childMouseX = mouseX - childPos.x;
+            double childMouseY = mouseY - childPos.y;
+
+            // Let child handle click
+            if (childPos.component.mouseClicked(childMouseX, childMouseY, button)) {
+                return true;
+            }
+        }
+
+        // No child handled the click, handle it ourselves
+        return true;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         boolean handled = false;
 
-        // Pass event to all children
-        for (Component child : children) {
-            if (child.mouseReleased(mouseX, mouseY, button)) {
+        // Let all children handle the release
+        for (ChildPosition childPos : childPositions) {
+            // Calculate mouse position relative to child
+            double childMouseX = mouseX - childPos.x;
+            double childMouseY = mouseY - childPos.y;
+
+            if (childPos.component.mouseReleased(childMouseX, childMouseY, button)) {
                 handled = true;
             }
         }
@@ -242,9 +299,13 @@ public class Container extends AbstractComponent {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         boolean handled = false;
 
-        // Pass event to all children
-        for (Component child : children) {
-            if (child.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
+        // Let all children handle the drag
+        for (ChildPosition childPos : childPositions) {
+            // Calculate mouse position relative to child
+            double childMouseX = mouseX - childPos.x;
+            double childMouseY = mouseY - childPos.y;
+
+            if (childPos.component.mouseDragged(childMouseX, childMouseY, button, deltaX, deltaY)) {
                 handled = true;
             }
         }
@@ -253,10 +314,29 @@ public class Container extends AbstractComponent {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
+        // Find child at mouse position
+        ChildPosition childPos = findChildAt(mouseX, mouseY);
+        if (childPos != null) {
+            // Calculate mouse position relative to child
+            double childMouseX = mouseX - childPos.x;
+            double childMouseY = mouseY - childPos.y;
+
+            // Let child handle scroll
+            if (childPos.component.mouseScrolled(childMouseX, childMouseY, amount)) {
+                return true;
+            }
+        }
+
+        // No child handled the scroll, handle it ourselves if needed
+        return false;
+    }
+
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         boolean handled = false;
 
-        // Pass event to all children
+        // Let all children handle the key press
         for (Component child : children) {
             if (child.keyPressed(keyCode, scanCode, modifiers)) {
                 handled = true;
@@ -270,7 +350,7 @@ public class Container extends AbstractComponent {
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         boolean handled = false;
 
-        // Pass event to all children
+        // Let all children handle the key release
         for (Component child : children) {
             if (child.keyReleased(keyCode, scanCode, modifiers)) {
                 handled = true;
@@ -284,7 +364,7 @@ public class Container extends AbstractComponent {
     public boolean charTyped(char chr, int modifiers) {
         boolean handled = false;
 
-        // Pass event to all children
+        // Let all children handle the char typed
         for (Component child : children) {
             if (child.charTyped(chr, modifiers)) {
                 handled = true;

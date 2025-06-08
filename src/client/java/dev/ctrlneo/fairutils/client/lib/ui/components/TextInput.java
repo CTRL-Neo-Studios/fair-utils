@@ -124,10 +124,31 @@ public class TextInput extends AbstractComponent {
         return this;
     }
 
+    /**
+     * Check if the text input is focused
+     * 
+     * @return True if the text input is focused
+     */
+    public boolean isFocused() {
+        return focused;
+    }
+
+    /**
+     * Set the focused state
+     * 
+     * @param focused The focused state
+     * @return This text input for chaining
+     */
+    public TextInput setFocused(boolean focused) {
+        this.focused = focused;
+        return this;
+    }
+
     @Override
     protected void renderContent(DrawContext context, int x, int y, int width, int height, int mouseX, int mouseY,
             float delta) {
-        boolean hovered = mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height;
+        // Check if mouse is over using the absolute coordinates
+        boolean hovered = isMouseOver(mouseX + absoluteX, mouseY + absoluteY);
 
         // Draw background
         int backgroundColor = focused ? 0xFF000000 : 0xFFFFFFFF;
@@ -158,7 +179,7 @@ public class TextInput extends AbstractComponent {
             if (focused) {
                 focusedTicks++;
 
-                if ((focusedTicks / 6) % 2 == 0) {
+                if ((focusedTicks / 12) % 2 == 0) { // Slow down cursor blink rate
                     // Get cursor position
                     int cursorX = x + 5 + textRenderer.getWidth(visibleText.substring(0, getCursorVisiblePos()));
 
@@ -200,21 +221,23 @@ public class TextInput extends AbstractComponent {
             }
 
             // If cursor is off screen to the right, adjust offset
-            String cursorToEnd = text.substring(displayOffset, cursorPos);
-            int cursorToEndWidth = textRenderer.getWidth(cursorToEnd);
+            if (cursorPos > displayOffset) {
+                String cursorToEnd = text.substring(displayOffset, cursorPos);
+                int cursorToEndWidth = textRenderer.getWidth(cursorToEnd);
 
-            if (cursorToEndWidth > maxWidth) {
-                // Move display offset to show cursor
-                displayOffset = Math.max(0, cursorPos - 1);
+                if (cursorToEndWidth > maxWidth) {
+                    // Move display offset to show cursor
+                    displayOffset = Math.max(0, cursorPos - Math.max(1, maxWidth / textRenderer.getWidth("W")));
 
-                // Recalculate visible text
-                visibleText = text.substring(displayOffset);
-                totalWidth = textRenderer.getWidth(visibleText);
-
-                // Trim from the end if still too long
-                while (totalWidth > maxWidth && !visibleText.isEmpty()) {
-                    visibleText = visibleText.substring(0, visibleText.length() - 1);
+                    // Recalculate visible text
+                    visibleText = text.substring(displayOffset);
                     totalWidth = textRenderer.getWidth(visibleText);
+
+                    // Trim from the end if still too long
+                    while (totalWidth > maxWidth && !visibleText.isEmpty()) {
+                        visibleText = visibleText.substring(0, visibleText.length() - 1);
+                        totalWidth = textRenderer.getWidth(visibleText);
+                    }
                 }
             }
         }
@@ -298,8 +321,14 @@ public class TextInput extends AbstractComponent {
             int end = Math.max(cursorPos, selectionEnd);
 
             String newText = text.substring(0, start) + text.substring(end);
+            int oldCursorPos = cursorPos;
             setText(newText);
             setCursorPos(start);
+
+            // Ensure cursor doesn't move unexpectedly
+            if (oldCursorPos < selectionEnd) {
+                selectionEnd = cursorPos;
+            }
         }
     }
 
@@ -321,26 +350,48 @@ public class TextInput extends AbstractComponent {
             String newText = text.substring(0, cursorPos) + str + text.substring(cursorPos);
 
             if (validator == null || validator.test(newText)) {
+                int oldCursorPos = cursorPos;
                 setText(newText);
-                setCursorPos(cursorPos + str.length());
+                setCursorPos(oldCursorPos + str.length());
             }
         }
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
+        if (!enabled)
+            return false;
+
+        boolean wasClicked = isMouseOver(mouseX, mouseY);
+
+        // Handle focus change
+        if (wasClicked) {
+            // This input was clicked
+            boolean wasFocused = focused;
             focused = true;
 
             if (button == 0) {
-                setCursorPos(getCharPos((int) mouseX - 5));
+                int relativeX = (int) mouseX - absoluteX - 5; // Adjust for the padding
+                if (relativeX >= 0) {
+                    setCursorPos(getCharPos(relativeX));
+                } else {
+                    setCursorPos(0);
+                }
             }
 
             return true;
         } else {
-            focused = false;
+            // Clicked elsewhere, lose focus
+            if (focused) {
+                focused = false;
+            }
             return false;
         }
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return focused;
     }
 
     @Override
@@ -354,8 +405,9 @@ public class TextInput extends AbstractComponent {
                     deleteSelectedText();
                 } else if (cursorPos > 0) {
                     String newText = text.substring(0, cursorPos - 1) + text.substring(cursorPos);
+                    int oldCursorPos = cursorPos;
                     setText(newText);
-                    setCursorPos(cursorPos - 1);
+                    setCursorPos(oldCursorPos - 1); // Move cursor back one position
                 }
                 return true;
 
@@ -364,7 +416,9 @@ public class TextInput extends AbstractComponent {
                     deleteSelectedText();
                 } else if (cursorPos < text.length()) {
                     String newText = text.substring(0, cursorPos) + text.substring(cursorPos + 1);
+                    int oldCursorPos = cursorPos;
                     setText(newText);
+                    setCursorPos(oldCursorPos); // Keep cursor at same position
                 }
                 return true;
 
@@ -428,26 +482,12 @@ public class TextInput extends AbstractComponent {
         if (!focused)
             return false;
 
-        if (SharedConstants.isValidChar(chr)) {
+        // Accept all printable characters
+        if (chr >= 32 && chr != 127) {
             write(Character.toString(chr));
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * Utility class for input validation
-     */
-    private static class SharedConstants {
-        /**
-         * Check if a character is valid for text input
-         * 
-         * @param c The character
-         * @return True if the character is valid
-         */
-        public static boolean isValidChar(char c) {
-            return c != 167 && c >= 32 && c != 127;
-        }
     }
 }

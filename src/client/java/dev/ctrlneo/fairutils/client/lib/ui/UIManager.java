@@ -49,6 +49,8 @@ public class UIManager {
      */
     public static class ComponentScreen extends Screen {
         private final Container rootComponent;
+        private int lastMouseX = -1; // Track mouse for components
+        private int lastMouseY = -1; // Track mouse for components
 
         /**
          * Create a new component screen
@@ -71,14 +73,18 @@ public class UIManager {
 
         @Override
         public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+            // Update last known mouse position
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+
+            // Draw the screen background first
             super.render(context, mouseX, mouseY, delta);
-            // Draw background
             renderBackground(context, mouseX, mouseY, delta);
 
-            // Draw root component
+            // Then draw the root component
             rootComponent.render(context, 0, 0, mouseX, mouseY, delta);
 
-            // Draw tooltip if needed
+            // Draw UI elements (like tooltip) if needed
             /*
              * If you need to render tooltips for items or components,
              * you should call the appropriate methods here after rendering
@@ -91,61 +97,78 @@ public class UIManager {
              * Tooltip.drawTooltipIfHovered(context, component, tooltip, mouseX, mouseY);
              */
 
+            // Draw the vanilla UI elements last (like title)
         }
 
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (rootComponent.mouseClicked(mouseX, mouseY, button)) {
-                return true;
+            // Let the component handle the click first
+            if (rootComponent.isMouseOver(mouseX, mouseY)) {
+                if (rootComponent.mouseClicked(mouseX, mouseY, button)) {
+                    return true;
+                }
             }
+            // Then let the screen handle it
             return super.mouseClicked(mouseX, mouseY, button);
         }
 
         @Override
         public boolean mouseReleased(double mouseX, double mouseY, int button) {
+            // Let the component handle the release first
             if (rootComponent.mouseReleased(mouseX, mouseY, button)) {
                 return true;
             }
+            // Then let the screen handle it
             return super.mouseReleased(mouseX, mouseY, button);
         }
 
         @Override
         public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+            // Let the component handle the drag first
             if (rootComponent.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)) {
                 return true;
             }
+            // Then let the screen handle it
             return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
         }
 
         @Override
         public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+            // Let the component handle the scroll first
             if (rootComponent.mouseScrolled(mouseX, mouseY, verticalAmount)) {
                 return true;
             }
+            // Then let the screen handle it
             return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
         }
 
         @Override
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+            // Let the component handle the key press first
             if (rootComponent.keyPressed(keyCode, scanCode, modifiers)) {
                 return true;
             }
+            // Then let the screen handle it
             return super.keyPressed(keyCode, scanCode, modifiers);
         }
 
         @Override
         public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+            // Let the component handle the key release first
             if (rootComponent.keyReleased(keyCode, scanCode, modifiers)) {
                 return true;
             }
+            // Then let the screen handle it
             return super.keyReleased(keyCode, scanCode, modifiers);
         }
 
         @Override
         public boolean charTyped(char chr, int modifiers) {
+            // Let the component handle the char typed first
             if (rootComponent.charTyped(chr, modifiers)) {
                 return true;
             }
+            // Then let the screen handle it
             return super.charTyped(chr, modifiers);
         }
     }
