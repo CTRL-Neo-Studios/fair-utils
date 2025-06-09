@@ -120,16 +120,16 @@ public class Task {
         if (objectives.isEmpty())
             return 0.0f;
 
-        int completedCount = 0;
+        float completedCount = 0;
         for (TaskObjective objective : objectives) {
             if (objective.isCompleted()) {
-                completedCount++;
+                completedCount += 1f / objectives.stream().count();
             } else if (objective.getProgressPercentage() > 0) {
-                completedCount += objective.getProgressPercentage() / 100.0f;
+                completedCount += ((objective.getProgressPercentage() / 100) / objectives.stream().count());
             }
         }
 
-        cachedProgress = (float) completedCount / objectives.size();
+        if (cachedProgress != completedCount) cachedProgress = completedCount;
         return cachedProgress;
     }
 

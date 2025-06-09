@@ -2,6 +2,7 @@ package dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives;
 
 import com.google.gson.JsonObject;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskObjective;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.event.TaskProgressChangedEvent;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
@@ -11,6 +12,7 @@ import net.minecraft.world.World;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * An objective to clear an area (mine blocks within a defined region)
@@ -26,11 +28,14 @@ public class AreaClearingObjective extends TaskObjective {
     private boolean initialized = false;
     private final Set<BlockPos> minedPositions = new HashSet<>();
 
+    private int _lastTotalBlocksToMine = -1;
+    private int _lastBlocksRemaining = -1;
+
     /**
      * Create an objective to clear all non-air blocks in an area
      */
-    public AreaClearingObjective(String description, BlockPos startPos, BlockPos endPos) {
-        super(description);
+    public AreaClearingObjective(UUID parentTaskId, String description, BlockPos startPos, BlockPos endPos) {
+        super(parentTaskId, description);
         this.startPos = startPos;
         this.endPos = endPos;
         this.targetBlocks = null;
@@ -40,8 +45,8 @@ public class AreaClearingObjective extends TaskObjective {
     /**
      * Create an objective to clear specific blocks in an area
      */
-    public AreaClearingObjective(String description, BlockPos startPos, BlockPos endPos, Set<Block> targetBlocks) {
-        super(description);
+    public AreaClearingObjective(UUID parentTaskId, String description, BlockPos startPos, BlockPos endPos, Set<Block> targetBlocks) {
+        super(parentTaskId, description);
         this.startPos = startPos;
         this.endPos = endPos;
         this.targetBlocks = targetBlocks;
@@ -139,6 +144,13 @@ public class AreaClearingObjective extends TaskObjective {
         if (blocksRemaining == 0) {
             setCompleted(true);
         }
+
+        if (_lastTotalBlocksToMine != totalBlocksToMine || _lastBlocksRemaining != blocksRemaining) {
+            TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
+        }
+
+        _lastBlocksRemaining = blocksRemaining;
+        _lastTotalBlocksToMine = totalBlocksToMine;
     }
 
     @Override
@@ -159,6 +171,7 @@ public class AreaClearingObjective extends TaskObjective {
 
     @Override
     public void addPropertiesToJson(JsonObject json) {
+        super.addPropertiesToJson(json);
         json.addProperty("x1", startPos.getX());
         json.addProperty("y1", startPos.getY());
         json.addProperty("z1", startPos.getZ());

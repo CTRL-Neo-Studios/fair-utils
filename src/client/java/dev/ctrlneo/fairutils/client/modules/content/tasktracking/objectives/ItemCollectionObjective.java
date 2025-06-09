@@ -2,11 +2,14 @@ package dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives;
 
 import com.google.gson.JsonObject;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskObjective;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.event.TaskProgressChangedEvent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
+
+import java.util.UUID;
 
 /**
  * An objective to collect a specific item type
@@ -16,8 +19,11 @@ public class ItemCollectionObjective extends TaskObjective {
     private final int targetAmount;
     private int currentAmount;
 
-    public ItemCollectionObjective(String description, Item targetItem, int targetAmount) {
-        super(description);
+    private int _lastCurrentAmount = -1;
+    private int _lastTargetAmount = -1;
+
+    public ItemCollectionObjective(UUID parentTaskId, String description, Item targetItem, int targetAmount) {
+        super(parentTaskId, description);
         this.targetItem = targetItem;
         this.targetAmount = targetAmount;
         this.currentAmount = 0;
@@ -50,6 +56,13 @@ public class ItemCollectionObjective extends TaskObjective {
         if (currentAmount >= targetAmount) {
             setCompleted(true);
         }
+
+        if (currentAmount != _lastCurrentAmount || targetAmount != _lastTargetAmount) {
+            TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
+        }
+
+        _lastCurrentAmount = currentAmount;
+        _lastTargetAmount = targetAmount;
     }
 
     @Override
@@ -68,6 +81,7 @@ public class ItemCollectionObjective extends TaskObjective {
 
     @Override
     public void addPropertiesToJson(JsonObject json) {
+        super.addPropertiesToJson(json);
         json.addProperty("itemId", Registries.ITEM.getId(targetItem).toString());
         json.addProperty("targetAmount", targetAmount);
         json.addProperty("currentAmount", currentAmount);

@@ -17,67 +17,91 @@
         </flow-layout>
     </components>
     <templates>
-        <template name="task-item">
-            <flow-layout direction="horizontal">
+        <template name="tasktracking.task-item">
+            <flow-layout direction="vertical">
                 <children>
-                    <flow-layout direction="vertical">
+                    <flow-layout direction="horizontal">
                         <children>
-                            <label>
-                                <text>{{task-title}}</text>
+                            <flow-layout direction="vertical">
+                                <children>
+                                    <label>
+                                        <text>{{task-title}}</text>
+                                        <sizing>
+                                            <horizontal method="fill">100</horizontal>
+                                        </sizing>
+                                    </label>
+                                    <label>
+                                        <text>{{task-desc}}</text>
+                                        <color>dark-gray</color>
+                                        <sizing>
+                                            <horizontal method="fill">100</horizontal>
+                                        </sizing>
+                                    </label>
+                                </children>
                                 <sizing>
-                                    <horizontal method="fill">100</horizontal>
+                                    <horizontal method="expand">100</horizontal>
                                 </sizing>
-                            </label>
-                            <label>
-                                <text>{{task-desc}}</text>
-                                <color>dark-gray</color>
-                                <sizing>
-                                    <horizontal method="fill">100</horizontal>
-                                </sizing>
-                            </label>
+                            </flow-layout>
+                            <flow-layout direction="horizontal">
+                                <children>
+                                    <label>
+                                        <text>{{percentage}}</text>
+                                        <color>blue</color>
+                                        <sizing>
+                                            <horizontal method="fill">20</horizontal>
+                                        </sizing>
+                                        <horizontal-text-alignment>right</horizontal-text-alignment>
+                                        <vertical-text-alignment>center</vertical-text-alignment>
+                                    </label>
+                                    <button id="tasktracking.task-item.edit">
+                                        <text>Edit</text>
+                                        <renderer>
+                                            <flat color="#9a000000" hovered-color="#6effffff" disabled-color="#3affffff"/>
+                                        </renderer>
+                                    </button>
+                                    <button id="tasktracking.task-item.delete">
+                                        <text>Delete</text>
+                                        <renderer>
+                                            <flat color="#ffff0000" hovered-color="#9eff0000" disabled-color="#8aff0000"/>
+                                        </renderer>
+                                    </button>
+                                </children>
+                                <gap>5</gap>
+                                <horizontal-alignment>right</horizontal-alignment>
+                            </flow-layout>
                         </children>
+                        <padding>
+                            <all>5</all>
+                        </padding>
                         <sizing>
-                            <horizontal method="expand">100</horizontal>
+                            <horizontal method="fill">100</horizontal>
                         </sizing>
                     </flow-layout>
                     <flow-layout direction="horizontal">
                         <children>
-                            <label>
-                                <text>{{percentage}}</text>
-                                <color>blue</color>
-                                <sizing>
-                                    <horizontal method="fill">20</horizontal>
-                                </sizing>
-                                <horizontal-text-alignment>right</horizontal-text-alignment>
-                                <vertical-text-alignment>center</vertical-text-alignment>
-                            </label>
-                            <button>
-                                <text>Edit</text>
+                            <flow-layout id="tasktracking.task-item.task-progress" direction="horizontal">
+                                <children>
+
+                                </children>
                                 <surface>
-                                    <flat>#ffffffff</flat>
+                                    <flat>blue</flat>
                                 </surface>
-                            </button>
-                            <button>
-                                <text>Delete</text>
-                                <surface>
-                                    <flat>#ffff0000</flat>
-                                </surface>
-                            </button>
+                                <padding>
+                                    <all>1</all>
+                                </padding>
+                            </flow-layout>
                         </children>
-                        <gap>5</gap>
-                        <horizontal-alignment>right</horizontal-alignment>
+                        <surface>
+                            <flat>#ffffffff</flat>
+                        </surface>
+                        <sizing>
+                            <horizontal method="expand">100</horizontal>
+                        </sizing>
                     </flow-layout>
                 </children>
-                <padding>
-                    <all>5</all>
-                </padding>
-                <cursor-style>pointer</cursor-style>
                 <surface>
-                    <flat>#9a000000</flat>
+                    <flat>#7a000000</flat>
                 </surface>
-                <sizing>
-                    <horizontal method="fill">100</horizontal>
-                </sizing>
             </flow-layout>
         </template>
     </templates>

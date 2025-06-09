@@ -3,6 +3,7 @@ package dev.ctrlneo.fairutils.client.modules.content.tasktracking;
 import dev.ctrlneo.fairutils.client.config.FairUtilsConfig;
 import dev.ctrlneo.fairutils.client.lib.ui.UIManager;
 import dev.ctrlneo.fairutils.client.modules.UtilityModule;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.event.TaskProgressChangedEvent;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.TaskOverlayRenderLayer;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.screens.TaskTrackingScreen;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.ItemCollectionObjective;
@@ -39,6 +40,10 @@ public class TaskTrackingModule extends UtilityModule {
         if (FairUtilsConfig.get().taskTrackingEnabled) {
             enableModule();
         }
+
+        TaskProgressChangedEvent.EVENT.register(uuid -> {
+            TASK_MANAGER.saveTasks();
+        });
     }
 
     /**
@@ -63,8 +68,8 @@ public class TaskTrackingModule extends UtilityModule {
         Task demoTask = new Task("Collect Resources", "Gather materials for crafting");
 
         // Add objectives
-        demoTask.addObjective(new ItemCollectionObjective("Collect Iron", Items.RAW_IRON, 16));
-        demoTask.addObjective(new ItemCollectionObjective("Collect Coal", Items.COAL, 32));
+        demoTask.addObjective(new ItemCollectionObjective(demoTask.getId(), "Collect Iron", Items.RAW_IRON, 16));
+        demoTask.addObjective(new ItemCollectionObjective(demoTask.getId(), "Collect Coal", Items.COAL, 32));
 
         // Add the task to the manager
         TASK_MANAGER.addTask(demoTask);

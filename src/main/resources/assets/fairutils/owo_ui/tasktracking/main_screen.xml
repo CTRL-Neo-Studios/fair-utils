@@ -7,7 +7,7 @@
                     <text>Tracking Tasks</text>
                 </label>
                 <scroll direction="vertical">
-                    <flow-layout direction="vertical" id="task-item-holder">
+                    <flow-layout direction="vertical" id="tasktracking.main_screen.task-item-holder">
                         <children>
 
                         </children>

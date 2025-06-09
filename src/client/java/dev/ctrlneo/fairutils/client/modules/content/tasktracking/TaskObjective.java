@@ -1,8 +1,11 @@
 package dev.ctrlneo.fairutils.client.modules.content.tasktracking;
 
 import com.google.gson.JsonObject;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.event.TaskProgressChangedEvent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
+
+import java.util.UUID;
 
 /**
  * Abstract class representing a single objective within a task
@@ -10,13 +13,19 @@ import net.minecraft.text.Text;
 public abstract class TaskObjective {
     private final String description;
     private boolean completed;
+    private UUID parentTask;
 
     // Transient fields that shouldn't be serialized
     private transient float cachedProgressPercentage = -1;
 
-    public TaskObjective(String description) {
+    public TaskObjective(UUID parentTaskId, String description) {
         this.description = description;
         this.completed = false;
+        this.parentTask = parentTaskId;
+    }
+
+    public TaskObjective(String description) {
+        this(null, description);
     }
 
     /**
@@ -40,6 +49,10 @@ public abstract class TaskObjective {
      * fields
      */
     public void addPropertiesToJson(JsonObject json) {
+        if (this.parentTask != null)
+            json.addProperty("parentTask", this.parentTask.toString());
+        else
+            json.addProperty("parentTask", "");
         // Base implementation adds nothing
         // Subclasses should override this to add their specific properties
     }
@@ -66,6 +79,7 @@ public abstract class TaskObjective {
      */
     protected void invalidateProgressCache() {
         cachedProgressPercentage = -1;
+        TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
     }
 
     /**
@@ -78,5 +92,9 @@ public abstract class TaskObjective {
 
         cachedProgressPercentage = calculatedProgress;
         return cachedProgressPercentage;
+    }
+
+    protected UUID getParentTask() {
+        return parentTask;
     }
 }

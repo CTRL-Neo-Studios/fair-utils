@@ -2,10 +2,13 @@ package dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives;
 
 import com.google.gson.JsonObject;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskObjective;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.event.TaskProgressChangedEvent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.UUID;
 
 /**
  * An objective to visit a specific location
@@ -16,14 +19,17 @@ public class LocationObjective extends TaskObjective {
     private double closestDistance = Double.MAX_VALUE;
     private boolean visited = false;
 
-    public LocationObjective(String description, Vec3d targetLocation, double requiredRadius) {
-        super(description);
+    private Vec3d _lastTargetLocation;
+    private double _lastRequiredRadius, _lastClosestDistance;
+
+    public LocationObjective(UUID parentTaskId, String description, Vec3d targetLocation, double requiredRadius) {
+        super(parentTaskId, description);
         this.targetLocation = targetLocation;
         this.requiredRadius = requiredRadius;
     }
 
-    public LocationObjective(String description, BlockPos targetBlock, double requiredRadius) {
-        this(description, new Vec3d(targetBlock.getX() + 0.5, targetBlock.getY(), targetBlock.getZ() + 0.5),
+    public LocationObjective(UUID parentTaskId, String description, BlockPos targetBlock, double requiredRadius) {
+        this(parentTaskId, description, new Vec3d(targetBlock.getX() + 0.5, targetBlock.getY(), targetBlock.getZ() + 0.5),
                 requiredRadius);
     }
 
@@ -46,6 +52,14 @@ public class LocationObjective extends TaskObjective {
             visited = true;
             setCompleted(true);
         }
+
+        if (!_lastTargetLocation.equals(targetLocation) || _lastClosestDistance != closestDistance || _lastRequiredRadius != requiredRadius) {
+            TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
+        }
+
+        _lastRequiredRadius = requiredRadius;
+        _lastClosestDistance = closestDistance;
+        _lastTargetLocation = targetLocation;
     }
 
     @Override
@@ -72,6 +86,7 @@ public class LocationObjective extends TaskObjective {
 
     @Override
     public void addPropertiesToJson(JsonObject json) {
+        super.addPropertiesToJson(json);
         json.addProperty("x", targetLocation.x);
         json.addProperty("y", targetLocation.y);
         json.addProperty("z", targetLocation.z);

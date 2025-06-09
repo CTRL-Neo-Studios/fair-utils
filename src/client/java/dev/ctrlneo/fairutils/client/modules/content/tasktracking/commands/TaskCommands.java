@@ -169,7 +169,7 @@ public class TaskCommands {
         }
 
         Task task = tasks.get(taskIndex);
-        task.addObjective(new ItemCollectionObjective(description, item, amount));
+        task.addObjective(new ItemCollectionObjective(task.getId(), description, item, amount));
         taskManager.saveTasks();
 
         context.getSource().sendFeedback(Text.literal("Added item collection objective to task: " + task.getTitle()));
@@ -191,7 +191,7 @@ public class TaskCommands {
         // Use the player's current position
         Vec3d playerPos = context.getSource().getPlayer().getPos();
         Task task = tasks.get(taskIndex);
-        task.addObjective(new LocationObjective(description, playerPos, radius));
+        task.addObjective(new LocationObjective(task.getId(), description, playerPos, radius));
         taskManager.saveTasks();
 
         context.getSource().sendFeedback(

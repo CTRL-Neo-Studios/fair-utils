@@ -238,7 +238,7 @@ public class TaskManager {
                 int targetAmount = json.get("targetAmount").getAsInt();
                 int currentAmount = json.get("currentAmount").getAsInt();
 
-                ItemCollectionObjective objective = new ItemCollectionObjective(description, item, targetAmount);
+                ItemCollectionObjective objective = new ItemCollectionObjective(task.getId(), description, item, targetAmount);
                 objective.setCompleted(completed);
                 objective.setCurrentAmount(currentAmount);
 
@@ -250,7 +250,7 @@ public class TaskManager {
                 double z = json.get("z").getAsDouble();
                 double radius = json.get("radius").getAsDouble();
 
-                LocationObjective objective = new LocationObjective(description, new Vec3d(x, y, z), radius);
+                LocationObjective objective = new LocationObjective(task.getId(), description, new Vec3d(x, y, z), radius);
                 objective.setCompleted(completed);
 
                 if (json.has("visited")) {
@@ -272,6 +272,7 @@ public class TaskManager {
                 int z2 = json.get("z2").getAsInt();
 
                 AreaClearingObjective objective = new AreaClearingObjective(
+                        task.getId(),
                         description,
                         new BlockPos(x1, y1, z1),
                         new BlockPos(x2, y2, z2));

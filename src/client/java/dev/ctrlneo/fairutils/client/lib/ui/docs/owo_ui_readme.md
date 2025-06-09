@@ -16,6 +16,14 @@ To make sure that components in the screen are initialized correctly, there must
 
 For initialization, you should put your bindings code of static components in the `build()` function, and the dynamic components in the `init()` function.
 
+### Static & Dynamic Components Runtime
+
+After initializing **Static Components** and **Dynamic Components** in your UI, you might want to make some of those elements real-time, meaning it would update its content in realtime in accordance to some data you have.
+
+For this, you'd have to do the following:
+1. During the Static/Dynamic Initialization, store the reference of the component in an attribute.
+2. ... still figuring out how to make it realtime...
+
 ### Container Sizing
 
 If you're using Flow Containers, then if you're trying to make the container fit with the content size... you don't really have to do anything. A flow container will stretch and wrap itself around its children content. It is by default. Can't believe it took me a long while to figure that out...
