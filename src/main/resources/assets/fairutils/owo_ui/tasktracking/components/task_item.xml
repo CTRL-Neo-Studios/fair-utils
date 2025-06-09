@@ -18,19 +18,66 @@
     </components>
     <templates>
         <template name="task-item">
-            <flow-layout direction="vertical">
+            <flow-layout direction="horizontal">
                 <children>
-                    <label>
-                        <text>{{task-title}}</text>
-                    </label>
-                    <label>
-                        <text>{{task-desc}}</text>
-                    </label>
+                    <flow-layout direction="vertical">
+                        <children>
+                            <label>
+                                <text>{{task-title}}</text>
+                                <sizing>
+                                    <horizontal method="fill">100</horizontal>
+                                </sizing>
+                            </label>
+                            <label>
+                                <text>{{task-desc}}</text>
+                                <color>dark-gray</color>
+                                <sizing>
+                                    <horizontal method="fill">100</horizontal>
+                                </sizing>
+                            </label>
+                        </children>
+                        <sizing>
+                            <horizontal method="expand">100</horizontal>
+                        </sizing>
+                    </flow-layout>
+                    <flow-layout direction="horizontal">
+                        <children>
+                            <label>
+                                <text>{{percentage}}</text>
+                                <color>blue</color>
+                                <sizing>
+                                    <horizontal method="fill">20</horizontal>
+                                </sizing>
+                                <horizontal-text-alignment>right</horizontal-text-alignment>
+                                <vertical-text-alignment>center</vertical-text-alignment>
+                            </label>
+                            <button>
+                                <text>Edit</text>
+                                <surface>
+                                    <flat>#ffffffff</flat>
+                                </surface>
+                            </button>
+                            <button>
+                                <text>Delete</text>
+                                <surface>
+                                    <flat>#ffff0000</flat>
+                                </surface>
+                            </button>
+                        </children>
+                        <gap>5</gap>
+                        <horizontal-alignment>right</horizontal-alignment>
+                    </flow-layout>
                 </children>
                 <padding>
                     <all>5</all>
                 </padding>
                 <cursor-style>pointer</cursor-style>
+                <surface>
+                    <flat>#9a000000</flat>
+                </surface>
+                <sizing>
+                    <horizontal method="fill">100</horizontal>
+                </sizing>
             </flow-layout>
         </template>
     </templates>

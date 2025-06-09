@@ -15,3 +15,9 @@ To make sure that components in the screen are initialized correctly, there must
 **Dynamic Components** are the UI Components that are not there in your initial UI sheet. It's either instantiated into the sheet after some kind of action or that you had a custom UI component preset that you want to instantiate, like a custom list or something.
 
 For initialization, you should put your bindings code of static components in the `build()` function, and the dynamic components in the `init()` function.
+
+### Container Sizing
+
+If you're using Flow Containers, then if you're trying to make the container fit with the content size... you don't really have to do anything. A flow container will stretch and wrap itself around its children content. It is by default. Can't believe it took me a long while to figure that out...
+
+For the sizing **`expand`** property (set at 100%), using it in a flex container is like having a div being put on a `flex-grow` class. It will resize the container to grow to the container's width/height. The `fill` property is setting the width/height of the set container to the percentage of width/height of the parent container.

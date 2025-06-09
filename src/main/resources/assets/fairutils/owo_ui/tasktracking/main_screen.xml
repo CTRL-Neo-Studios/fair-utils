@@ -12,9 +12,9 @@
 
                         </children>
                         <sizing>
-                            <vertical method="content">100</vertical>
                             <horizontal method="fill">100</horizontal>
                         </sizing>
+                        <gap>5</gap>
                     </flow-layout>
                     <sizing>
                         <vertical method="fill">100</vertical>
@@ -22,6 +22,9 @@
                     </sizing>
                     <scrollbar-color>#ffffff</scrollbar-color>
                     <scrollbar-thiccness>10</scrollbar-thiccness>
+                    <surface>
+                        <flat>#00000000</flat>
+                    </surface>
                 </scroll>
             </children>
             <padding>
@@ -30,7 +33,6 @@
             <vertical-alignment>top</vertical-alignment>
             <horizontal-alignment>left</horizontal-alignment>
             <sizing>
-                <vertical method="fill">100</vertical>
                 <horizontal method="fill">100</horizontal>
             </sizing>
         </flow-layout>

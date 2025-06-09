@@ -28,6 +28,7 @@ public class TaskTrackingScreen extends BaseScreen {
                             template("task-item", FlowLayout.class)
                                     .with("task-title", task.getTitle())
                                     .with("task-desc", task.getDescription())
+                                    .with("percentage", String.valueOf((int)(task.getProgress() * 100)) + "%")
                                     .expand(Reference.of("tasktracking", "components", "task_item"))
                     );
                 }
