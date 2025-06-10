@@ -182,8 +182,7 @@ public class TaskManager {
 
             // Set properties
             if (json.has("id")) {
-                UUID id = UUID.fromString(json.get("id").getAsString());
-                // No setter for ID, but it's already set in constructor
+                task.setId(UUID.fromString(json.get("id").getAsString()));
             }
 
             if (json.has("completed")) {
@@ -195,7 +194,7 @@ public class TaskManager {
             }
 
             if (json.has("creationTime")) {
-                // Creation time is already set in constructor
+                task.setCreationTime(json.get("creationTime").getAsLong());
             }
 
             // Load objectives
@@ -226,6 +225,7 @@ public class TaskManager {
                 return;
             }
 
+            UUID id = json.has("id") ? UUID.fromString(json.get("id").getAsString()) : UUID.randomUUID();
             String type = json.get("type").getAsString();
             String description = json.get("description").getAsString();
             boolean completed = json.get("completed").getAsBoolean();
@@ -239,6 +239,7 @@ public class TaskManager {
                 int currentAmount = json.get("currentAmount").getAsInt();
 
                 ItemCollectionObjective objective = new ItemCollectionObjective(task.getId(), description, item, targetAmount);
+                objective.setId(id);
                 objective.setCompleted(completed);
                 objective.setCurrentAmount(currentAmount);
 
@@ -251,6 +252,7 @@ public class TaskManager {
                 double radius = json.get("radius").getAsDouble();
 
                 LocationObjective objective = new LocationObjective(task.getId(), description, new Vec3d(x, y, z), radius);
+                objective.setId(id);
                 objective.setCompleted(completed);
 
                 if (json.has("visited")) {
@@ -276,6 +278,7 @@ public class TaskManager {
                         description,
                         new BlockPos(x1, y1, z1),
                         new BlockPos(x2, y2, z2));
+                objective.setId(id);
                 objective.setCompleted(completed);
 
                 if (json.has("totalBlocksToMine")) {

@@ -19,9 +19,6 @@ public class LocationObjective extends TaskObjective {
     private double closestDistance = Double.MAX_VALUE;
     private boolean visited = false;
 
-    private Vec3d _lastTargetLocation;
-    private double _lastRequiredRadius, _lastClosestDistance;
-
     public LocationObjective(UUID parentTaskId, String description, Vec3d targetLocation, double requiredRadius) {
         super(parentTaskId, description);
         this.targetLocation = targetLocation;
@@ -53,13 +50,7 @@ public class LocationObjective extends TaskObjective {
             setCompleted(true);
         }
 
-        if (!_lastTargetLocation.equals(targetLocation) || _lastClosestDistance != closestDistance || _lastRequiredRadius != requiredRadius) {
-            TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
-        }
-
-        _lastRequiredRadius = requiredRadius;
-        _lastClosestDistance = closestDistance;
-        _lastTargetLocation = targetLocation;
+//        checkIfProgressChanged();
     }
 
     @Override

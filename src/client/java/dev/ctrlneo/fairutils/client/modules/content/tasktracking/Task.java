@@ -14,13 +14,14 @@ import java.util.function.Predicate;
  * Represents a trackable task that can be created by players
  */
 public class Task {
-    private final UUID id;
+    private UUID id;
     private String title;
     private String description;
     private boolean completed;
     private boolean visible = true;
     private final List<TaskObjective> objectives = new ArrayList<>();
     private long creationTime;
+    private boolean pinned = false;
 
     // Transient fields that shouldn't be serialized
     private transient float cachedProgress = -1;
@@ -31,6 +32,7 @@ public class Task {
         this.description = description;
         this.completed = false;
         this.creationTime = System.currentTimeMillis();
+        this.pinned =  false;
     }
 
     /**
@@ -68,6 +70,8 @@ public class Task {
     public UUID getId() {
         return id;
     }
+
+    public void setId(UUID id) { this.id = id; }
 
     public String getTitle() {
         return title;
@@ -108,6 +112,8 @@ public class Task {
     public long getCreationTime() {
         return creationTime;
     }
+
+    public void setCreationTime(long time) { this.creationTime = time; }
 
     /**
      * Calculate the overall progress percentage of this task
@@ -155,14 +161,17 @@ public class Task {
         json.addProperty("completed", completed);
         json.addProperty("visible", visible);
         json.addProperty("creationTime", creationTime);
+        json.addProperty("pinned", pinned);
 
         JsonArray objectivesArray = new JsonArray();
         for (TaskObjective objective : objectives) {
             // Let each objective handle its own serialization
             JsonObject objJson = new JsonObject();
+            objJson.addProperty("id", objective.getId().toString());
             objJson.addProperty("type", objective.getClass().getName());
             objJson.addProperty("description", objective.getDescription());
             objJson.addProperty("completed", objective.isCompleted());
+            objJson.addProperty("parentTask", objective.getParentTask().toString());
 
             // Let the objective add its type-specific properties
             objective.addPropertiesToJson(objJson);

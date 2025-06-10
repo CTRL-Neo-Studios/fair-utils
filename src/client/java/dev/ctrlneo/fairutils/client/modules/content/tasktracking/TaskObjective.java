@@ -13,10 +13,12 @@ import java.util.UUID;
 public abstract class TaskObjective {
     private final String description;
     private boolean completed;
+    private UUID id;
     private UUID parentTask;
 
     // Transient fields that shouldn't be serialized
     private transient float cachedProgressPercentage = -1;
+    private transient float _lastProgressPercentage = -1;
 
     public TaskObjective(UUID parentTaskId, String description) {
         this.description = description;
@@ -55,6 +57,14 @@ public abstract class TaskObjective {
             json.addProperty("parentTask", "");
         // Base implementation adds nothing
         // Subclasses should override this to add their specific properties
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getDescription() {
@@ -96,5 +106,12 @@ public abstract class TaskObjective {
 
     protected UUID getParentTask() {
         return parentTask;
+    }
+
+    protected boolean checkIfProgressChanged() {
+        boolean changed = _lastProgressPercentage != this.getProgressPercentage();
+        if (changed)
+            TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
+        return changed;
     }
 }

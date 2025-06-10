@@ -28,9 +28,6 @@ public class AreaClearingObjective extends TaskObjective {
     private boolean initialized = false;
     private final Set<BlockPos> minedPositions = new HashSet<>();
 
-    private int _lastTotalBlocksToMine = -1;
-    private int _lastBlocksRemaining = -1;
-
     /**
      * Create an objective to clear all non-air blocks in an area
      */
@@ -145,12 +142,7 @@ public class AreaClearingObjective extends TaskObjective {
             setCompleted(true);
         }
 
-        if (_lastTotalBlocksToMine != totalBlocksToMine || _lastBlocksRemaining != blocksRemaining) {
-            TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
-        }
-
-        _lastBlocksRemaining = blocksRemaining;
-        _lastTotalBlocksToMine = totalBlocksToMine;
+//        checkIfProgressChanged();
     }
 
     @Override

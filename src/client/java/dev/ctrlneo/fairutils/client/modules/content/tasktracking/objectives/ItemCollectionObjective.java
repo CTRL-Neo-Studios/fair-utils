@@ -19,9 +19,6 @@ public class ItemCollectionObjective extends TaskObjective {
     private final int targetAmount;
     private int currentAmount;
 
-    private int _lastCurrentAmount = -1;
-    private int _lastTargetAmount = -1;
-
     public ItemCollectionObjective(UUID parentTaskId, String description, Item targetItem, int targetAmount) {
         super(parentTaskId, description);
         this.targetItem = targetItem;
@@ -57,12 +54,7 @@ public class ItemCollectionObjective extends TaskObjective {
             setCompleted(true);
         }
 
-        if (currentAmount != _lastCurrentAmount || targetAmount != _lastTargetAmount) {
-            TaskProgressChangedEvent.EVENT.invoker().onCallback(getParentTask());
-        }
-
-        _lastCurrentAmount = currentAmount;
-        _lastTargetAmount = targetAmount;
+//        checkIfProgressChanged();
     }
 
     @Override

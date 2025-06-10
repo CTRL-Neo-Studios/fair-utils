@@ -9,8 +9,10 @@ import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.screens.Tas
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.ItemCollectionObjective;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -42,6 +44,10 @@ public class TaskTrackingModule extends UtilityModule {
         }
 
         TaskProgressChangedEvent.EVENT.register(uuid -> {
+//            TASK_MANAGER.saveTasks();
+        });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             TASK_MANAGER.saveTasks();
         });
     }
