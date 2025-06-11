@@ -7,23 +7,30 @@ import dev.ctrlneo.fairutils.client.modules.content.tasktracking.event.TaskProgr
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.TaskOverlayRenderLayer;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui.screens.TaskTrackingScreen;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.ItemCollectionObjective;
-import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskStorage;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.Items;
+import net.minecraft.util.WorldSavePath;
+
+import java.util.Objects;
+import java.util.Optional;
 
 public class TaskTrackingModule extends UtilityModule {
     public static final String MODULE_CATEGORY = "Task Tracking";
-    public static final TaskManager TASK_MANAGER = new TaskManager();
+    private static TaskStorage TASK_STORAGE;
     public static final KeyBinding OPEN_TASK_TRACKING_GUI = new KeyBinding("fairutils", InputUtil.GLFW_KEY_0, MODULE_CATEGORY);
-    private final TaskOverlayRenderLayer renderer = new TaskOverlayRenderLayer(TASK_MANAGER);
+
     private MinecraftClient mc;
+
+    public static Optional<TaskStorage> storage() {
+        if (TASK_STORAGE == null) return Optional.empty();
+        return Optional.of(TASK_STORAGE);
+    }
 
     @Override
     public void initialize() {
@@ -35,7 +42,7 @@ public class TaskTrackingModule extends UtilityModule {
 
         // Register renderer for HUD overlay
         HudLayerRegistrationCallback.EVENT.register(layeredDrawerWrapper -> {
-            layeredDrawerWrapper.addLayer(renderer);
+            layeredDrawerWrapper.addLayer(new TaskOverlayRenderLayer());
         });
 
         // Enable module based on config
@@ -44,11 +51,20 @@ public class TaskTrackingModule extends UtilityModule {
         }
 
         TaskProgressChangedEvent.EVENT.register(uuid -> {
-//            TASK_MANAGER.saveTasks();
+
         });
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            TASK_MANAGER.saveTasks();
+            TASK_STORAGE.saveTasks();
+        });
+
+        ClientPlayConnectionEvents.JOIN.register((clientPlayNetworkHandler, packetSender, minecraftClient) -> {
+            String worldIdentifier;
+            boolean isMultiplayer = minecraftClient.getServer() == null;
+            if (isMultiplayer) worldIdentifier = Objects.requireNonNull(clientPlayNetworkHandler.getServerInfo()).address;
+            else worldIdentifier = minecraftClient.getServer().getSavePath(WorldSavePath.ROOT).getParent().getFileName().toString();
+
+            TASK_STORAGE = new TaskStorage(worldIdentifier, isMultiplayer);
         });
     }
 
@@ -59,11 +75,12 @@ public class TaskTrackingModule extends UtilityModule {
         if (!isEnabled() || client.player == null)
             return;
 
-        if (OPEN_TASK_TRACKING_GUI.wasPressed()) {
+        if (OPEN_TASK_TRACKING_GUI.wasPressed() && storage().isPresent()) {
             UIManager.to(new TaskTrackingScreen());
         }
 
-        TASK_MANAGER.tick();
+        if (storage().isPresent())
+            storage().get().tick();
     }
 
     /**
@@ -78,7 +95,7 @@ public class TaskTrackingModule extends UtilityModule {
         demoTask.addObjective(new ItemCollectionObjective(demoTask.getId(), "Collect Coal", Items.COAL, 32));
 
         // Add the task to the manager
-        TASK_MANAGER.addTask(demoTask);
+        TASK_STORAGE.addTask(demoTask);
     }
 
     @Override
@@ -103,10 +120,4 @@ public class TaskTrackingModule extends UtilityModule {
         return "task_tracking";
     }
 
-    /**
-     * Get the task manager instance
-     */
-    public TaskManager getTaskManager() {
-        return TASK_MANAGER;
-    }
 }

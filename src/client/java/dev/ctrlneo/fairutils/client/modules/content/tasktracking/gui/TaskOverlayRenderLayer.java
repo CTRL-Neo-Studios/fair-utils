@@ -3,7 +3,7 @@ package dev.ctrlneo.fairutils.client.modules.content.tasktracking.gui;
 import dev.ctrlneo.fairutils.client.config.FairUtilsConfig;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.Task;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskObjective;
-import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskTrackingModule;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskOverlayPosition;
 import dev.ctrlneo.fairutils.client.utility.Reference;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
@@ -11,7 +11,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.util.List;
@@ -20,7 +19,6 @@ import java.util.List;
  * Renders tasks on the HUD
  */
 public class TaskOverlayRenderLayer implements IdentifiedLayer {
-    private final TaskManager taskManager;
     private static final int BACKGROUND_COLOR = 0x80000000; // Semi-transparent black
     private static final int PROGRESS_BAR_COLOR = 0xFF3FB53F; // Green
     private static final int TITLE_COLOR = 0xFFFFFF; // White
@@ -30,8 +28,7 @@ public class TaskOverlayRenderLayer implements IdentifiedLayer {
 
     private MinecraftClient client;
 
-    public TaskOverlayRenderLayer(TaskManager taskManager) {
-        this.taskManager = taskManager;
+    public TaskOverlayRenderLayer() {
     }
 
     @Override
@@ -43,14 +40,14 @@ public class TaskOverlayRenderLayer implements IdentifiedLayer {
     public void render(DrawContext context, RenderTickCounter tickCounter) {
         if(client == null) client = MinecraftClient.getInstance();
 
-        if (client.player == null || client.options.hudHidden)
+        if (client.player == null || client.options.hudHidden || TaskTrackingModule.storage().isEmpty())
             return;
 
         if (!FairUtilsConfig.get().taskTrackingEnabled || !FairUtilsConfig.get().showTaskTrackingOverlay) {
             return;
         }
 
-        List<Task> visibleTasks = taskManager.getVisibleTasks();
+        List<Task> visibleTasks = TaskTrackingModule.storage().get().getVisibleTasks();
         if (visibleTasks.isEmpty())
             return;
 

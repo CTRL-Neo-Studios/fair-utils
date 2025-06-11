@@ -35,6 +35,6 @@ public class FairUtilsClient implements ClientModInitializer {
         moduleManager.initializeModules();
 
         // Initialize task commands after modules are initialized
-        taskCommands = new TaskCommands(taskTrackingModule.getTaskManager());
+        taskCommands = new TaskCommands(taskTrackingModule.getStorage());
     }
 }

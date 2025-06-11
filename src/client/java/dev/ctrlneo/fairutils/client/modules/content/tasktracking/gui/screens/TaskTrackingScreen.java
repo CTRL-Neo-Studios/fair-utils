@@ -4,16 +4,15 @@ import dev.ctrlneo.fairutils.client.FairUtilsClient;
 import dev.ctrlneo.fairutils.client.lib.ui.screens.BaseScreen;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.Task;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskTrackingModule;
-import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskStorage;
 import dev.ctrlneo.fairutils.client.utility.Reference;
-import io.wispforest.owo.ui.component.DiscreteSliderComponent;
+import io.wispforest.owo.ui.component.ButtonComponent;
 import io.wispforest.owo.ui.container.FlowLayout;
-import io.wispforest.owo.ui.core.Size;
 import io.wispforest.owo.ui.core.Sizing;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class TaskTrackingScreen extends BaseScreen {
 
@@ -28,10 +27,12 @@ public class TaskTrackingScreen extends BaseScreen {
         super.injectDynamicComponents();
 
         FlowLayout taskItemHolder = getRootComponent().childById(FlowLayout.class, "tasktracking.main_screen.task-item-holder");
-        if (taskItemHolder != null) {
+        Optional<TaskStorage> storage = TaskTrackingModule.storage();
+        if (taskItemHolder != null && storage.isPresent()) {
             taskItemHolder.clearChildren();
             taskItemHolder.<FlowLayout>configure(component -> {
-                for(Task task : TaskTrackingModule.TASK_MANAGER.getAllTasks()) {
+                for(Task task : storage.get().getAllTasks()) {
+                    // Replaces the label values of the task item
                     FlowLayout taskItem = template("tasktracking.task-item", FlowLayout.class)
                             .with("task-title", task.getTitle())
                             .with("task-desc", task.getDescription())
@@ -44,7 +45,17 @@ public class TaskTrackingScreen extends BaseScreen {
                         taskProgress.horizontalSizing(Sizing.fill((int)(task.getProgress() * 100)));
                     }
 
-                    // TODO: Add Edit and Delete Button Implementation Here.
+
+                    // Adds button functionality
+                    ButtonComponent editButton = taskItem.childById(ButtonComponent.class, "tasktracking.task-item.edit"), deleteButton = taskItem.childById(ButtonComponent.class, "tasktracking.task-item.delete");
+
+                    editButton.onPress(button -> {
+                        // To Edit Task Screen
+                    });
+                    deleteButton.onPress(button -> {
+                        storage.get().removeTask(task.getId());
+                    });
+
 
                     FairUtilsClient.LOGGER.info(String.format("progress %s; objectives %s; completed %s; ongoing %s;", String.valueOf(
                             task.getProgress()),
@@ -57,6 +68,10 @@ public class TaskTrackingScreen extends BaseScreen {
                 }
             });
         }
+    }
+
+    private void replaceTemplateLabels(FlowLayout taskItem) {
+
     }
 
     @Override

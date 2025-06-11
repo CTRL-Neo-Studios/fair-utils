@@ -6,11 +6,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.Task;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.TaskObjective;
-import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.AreaClearingObjective;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.ItemCollectionObjective;
 import dev.ctrlneo.fairutils.client.modules.content.tasktracking.objectives.LocationObjective;
-import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import dev.ctrlneo.fairutils.client.modules.content.tasktracking.utility.TaskStorage;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.command.CommandRegistryAccess;
@@ -34,10 +32,10 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.lit
  * Command handler for task-related commands
  */
 public class TaskCommands {
-    private final TaskManager taskManager;
+    private final TaskStorage taskStorage;
 
-    public TaskCommands(TaskManager taskManager) {
-        this.taskManager = taskManager;
+    public TaskCommands(TaskStorage taskStorage) {
+        this.taskStorage = taskStorage;
 
         // Register commands
         ClientCommandRegistrationCallback.EVENT.register(this::registerCommands);
@@ -89,7 +87,7 @@ public class TaskCommands {
     }
 
     private int listTasks(CommandContext<FabricClientCommandSource> context) {
-        List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskStorage.getAllTasks();
 
         if (tasks.isEmpty()) {
             context.getSource().sendFeedback(Text.literal("You have no tasks."));
@@ -121,7 +119,7 @@ public class TaskCommands {
         String description = StringArgumentType.getString(context, "description");
 
         Task newTask = new Task(title, description);
-        taskManager.addTask(newTask);
+        taskStorage.addTask(newTask);
 
         context.getSource().sendFeedback(Text.literal("Created task: " + title));
         return 1;
@@ -129,7 +127,7 @@ public class TaskCommands {
 
     private int deleteTask(CommandContext<FabricClientCommandSource> context) {
         int index = IntegerArgumentType.getInteger(context, "index") - 1; // Convert to 0-based
-        List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskStorage.getAllTasks();
 
         if (index < 0 || index >= tasks.size()) {
             context.getSource().sendError(Text.literal("Invalid task index."));
@@ -137,18 +135,18 @@ public class TaskCommands {
         }
 
         Task taskToRemove = tasks.get(index);
-        taskManager.removeTask(taskToRemove.getId());
+        taskStorage.removeTask(taskToRemove.getId());
 
         context.getSource().sendFeedback(Text.literal("Deleted task: " + taskToRemove.getTitle()));
         return 1;
     }
 
     private int clearTasks(CommandContext<FabricClientCommandSource> context) {
-        List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskStorage.getAllTasks();
         int count = tasks.size();
 
         for (Task task : new ArrayList<>(tasks)) {
-            taskManager.removeTask(task.getId());
+            taskStorage.removeTask(task.getId());
         }
 
         context.getSource().sendFeedback(Text.literal("Cleared " + count + " tasks."));
@@ -161,7 +159,7 @@ public class TaskCommands {
         int amount = IntegerArgumentType.getInteger(context, "amount");
         String description = StringArgumentType.getString(context, "description");
 
-        List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskStorage.getAllTasks();
 
         if (taskIndex < 0 || taskIndex >= tasks.size()) {
             context.getSource().sendError(Text.literal("Invalid task index."));
@@ -170,7 +168,7 @@ public class TaskCommands {
 
         Task task = tasks.get(taskIndex);
         task.addObjective(new ItemCollectionObjective(task.getId(), description, item, amount));
-        taskManager.saveTasks();
+        taskStorage.saveTasks();
 
         context.getSource().sendFeedback(Text.literal("Added item collection objective to task: " + task.getTitle()));
         return 1;
@@ -181,7 +179,7 @@ public class TaskCommands {
         int radius = IntegerArgumentType.getInteger(context, "radius");
         String description = StringArgumentType.getString(context, "description");
 
-        List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskStorage.getAllTasks();
 
         if (taskIndex < 0 || taskIndex >= tasks.size()) {
             context.getSource().sendError(Text.literal("Invalid task index."));
@@ -192,7 +190,7 @@ public class TaskCommands {
         Vec3d playerPos = context.getSource().getPlayer().getPos();
         Task task = tasks.get(taskIndex);
         task.addObjective(new LocationObjective(task.getId(), description, playerPos, radius));
-        taskManager.saveTasks();
+        taskStorage.saveTasks();
 
         context.getSource().sendFeedback(
                 Text.literal("Added location objective at your current position to task: " + task.getTitle()));
@@ -203,7 +201,7 @@ public class TaskCommands {
         int taskIndex = IntegerArgumentType.getInteger(context, "taskIndex") - 1; // Convert to 0-based
         String description = StringArgumentType.getString(context, "description");
 
-        List<Task> tasks = taskManager.getAllTasks();
+        List<Task> tasks = taskStorage.getAllTasks();
 
         if (taskIndex < 0 || taskIndex >= tasks.size()) {
             context.getSource().sendError(Text.literal("Invalid task index."));

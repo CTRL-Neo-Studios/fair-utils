@@ -32,13 +32,13 @@ import java.util.UUID;
 /**
  * Manages all player tasks, including saving and loading
  */
-public class TaskManager {
+public class TaskStorage {
     private final List<Task> tasks = new ArrayList<>();
     private final File tasksFile;
     private final Gson gson;
 
-    public TaskManager() {
-        tasksFile = new File(FabricLoader.getInstance().getConfigDir().toFile(), "fairutils_tasks.json");
+    public TaskStorage(String identifier, boolean isMultiplayer) {
+        tasksFile = new File(FabricLoader.getInstance().getConfigDir().resolve("tasks").resolve(isMultiplayer ? "mp" : "sp").toFile(), identifier + ".json");
 
         // Create a simple Gson instance for pretty printing
         gson = new GsonBuilder().setPrettyPrinting().create();
